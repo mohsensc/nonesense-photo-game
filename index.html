@@ -10,7 +10,7 @@
   html, body { margin: 0; background: #fff; color: #000; }
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.3; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
   #app { min-height: 100dvh; padding: var(--pagePadding); padding-bottom: max(var(--pagePadding), env(safe-area-inset-bottom)); display: flex; flex-direction: column; }
-  #app.game { height: 100dvh; }
+  #app.gameView { height: 100dvh; }
 
   button { font: inherit; font-weight: 600; color: #000; background: #fff; border: 1.5px solid #000; padding: 16px 32px; cursor: pointer; border-radius: 0; transition: background 120ms, color 120ms; touch-action: manipulation; }
   button:active { background: #000; color: #fff; }
@@ -202,7 +202,7 @@ async function showHome(knownRows) {
   const board = createElement("div", undefined, "board");
   const layout = createElement("div", undefined, "homeLayout");
   layout.append(intro, board);
-  showView("home", layout);
+  showView("homeView", layout);
   const rows = knownRows || (await fetchLeaderboardRows());
   board.append(rows.length > 0 ? buildLeaderboardTable(rows, playerName) : createElement("p", "No scores yet", "emptyBoard"));
 }
@@ -224,7 +224,7 @@ function askName(onDone) {
   });
   const layout = createElement("div", undefined, "centerLayout");
   layout.append(createElement("h1", "What's your name?"), input, createButton("Continue", submit, "primary"));
-  showView("name", layout);
+  showView("nameView", layout);
   input.focus();
 }
 
@@ -271,7 +271,7 @@ function playRound(rounds, roundIndex, correctCount) {
   body.append(frame, choices);
   const layout = createElement("div", undefined, "gameLayout");
   layout.append(header, body);
-  showView("game", layout);
+  showView("gameView", layout);
 }
 
 function advance(rounds, roundIndex, correctCount) {
@@ -292,7 +292,7 @@ function finishGame(correctCount) {
     createElement("p", percent + "% correct", "percent"),
     homeButton
   );
-  showView("score", layout);
+  showView("scoreView", layout);
 }
 
 loadPhotoLibrary().then(() => showHome());
