@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bryan B-roll vs Saanvi Snaps</title>
+<style>
+  :root { --pagePadding: clamp(20px, 4vw, 56px); --gap: clamp(12px, 1.6vw, 20px); --line: #e4e4e4; --muted: #767676; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: #000; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.3; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+  #app { min-height: 100dvh; padding: var(--pagePadding); padding-bottom: max(var(--pagePadding), env(safe-area-inset-bottom)); display: flex; flex-direction: column; }
+  #app.game { height: 100dvh; }
+
+  button { font: inherit; font-weight: 600; color: #000; background: #fff; border: 1.5px solid #000; padding: 16px 32px; cursor: pointer; border-radius: 0; transition: background 120ms, color 120ms; touch-action: manipulation; }
+  button:active { background: #000; color: #fff; }
+  @media (hover: hover) { button:hover { background: #000; color: #fff; } }
+  button:focus-visible, input:focus-visible { outline: 3px solid #000; outline-offset: 3px; }
+  button.primary { background: #000; color: #fff; font-size: clamp(1.25rem, 2vw, 1.75rem); padding: clamp(20px, 2.4vw, 32px); width: 100%; }
+  button.primary:active { background: #fff; color: #000; }
+  @media (hover: hover) { button.primary:hover { background: #fff; color: #000; } }
+  button:disabled { opacity: 0.3; pointer-events: none; }
+  button.right, button.right:hover { background: #bfe8cf; color: #000; }
+  button.wrong, button.wrong:hover { background: #f3c4c4; color: #000; }
+  .linkButton, .linkButton:hover, .linkButton:active { border: 0; padding: 8px 0; background: none; color: var(--muted); font-weight: 400; text-decoration: underline; text-underline-offset: 3px; align-self: flex-start; }
+
+  .title { font-size: clamp(2.75rem, 7.2vw, 7rem); font-weight: 800; line-height: 0.95; letter-spacing: -0.04em; margin: 0; }
+  .title span { display: block; }
+  .title .versus { font-size: 0.32em; font-weight: 400; letter-spacing: 0; color: var(--muted); margin: 0.5em 0; }
+
+  .homeLayout { flex: 1; width: 100%; max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 7vw, 120px); align-items: center; }
+  .homeIntro { display: flex; flex-direction: column; gap: clamp(28px, 4vw, 56px); }
+  .homeActions { display: flex; flex-direction: column; gap: 8px; }
+  .board { max-height: calc(100dvh - 2 * var(--pagePadding)); overflow-y: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: clamp(1rem, 1.5vw, 1.375rem); font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: clamp(12px, 1.4vw, 20px) 12px clamp(12px, 1.4vw, 20px) 0; border-bottom: 1px solid var(--line); font-weight: 400; }
+  th { position: sticky; top: 0; background: #fff; font-size: 0.75em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1.5px solid #000; }
+  th:first-child, td:first-child { width: 3em; color: var(--muted); }
+  th:nth-child(n+3), td:nth-child(n+3) { text-align: right; padding-right: 0; padding-left: 12px; white-space: nowrap; }
+  td:nth-child(2) { overflow-wrap: anywhere; }
+  tr.mine td { font-weight: 800; color: #000; }
+  .emptyBoard { color: var(--muted); margin: 0; }
+
+  .centerLayout { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; gap: clamp(24px, 3vw, 40px); }
+  .centerLayout h1 { font-size: clamp(2.25rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin: 0; }
+  input { font: inherit; font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; padding: 12px 0; border: 0; border-bottom: 2px solid #000; border-radius: 0; background: #fff; color: #000; width: 100%; }
+  input:focus-visible { outline: 0; }
+  .score { font-size: clamp(5rem, 18vw, 12rem); font-weight: 800; letter-spacing: -0.05em; line-height: 0.9; margin: 0; font-variant-numeric: tabular-nums; }
+  .percent { font-size: clamp(1.25rem, 2.4vw, 2rem); color: var(--muted); margin: 0; }
+
+  .gameLayout { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: var(--gap); }
+  .gameHeader { display: flex; align-items: center; gap: 16px; }
+  .progress { flex: 1; display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+  .progress i { height: 4px; background: var(--line); }
+  .progress i.done { background: #000; }
+  .counter { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .gameBody { min-height: 0; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr); gap: var(--gap); }
+  .photoFrame { position: relative; min-height: 0; background: #f4f4f4; }
+  .photoFrame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .choices { display: grid; grid-template-rows: 1fr 1fr; gap: var(--gap); }
+  .choices button { font-size: clamp(1.5rem, 3.2vw, 3rem); font-weight: 800; letter-spacing: -0.02em; padding: 12px; }
+
+  @media (max-width: 760px) {
+    .homeLayout { grid-template-columns: minmax(0, 1fr); align-items: start; align-content: start; gap: 40px; padding-top: 12px; }
+    .title { font-size: clamp(2.75rem, 14vw, 4.5rem); }
+    .board { max-height: none; overflow: visible; }
+    th:first-child, td:first-child { width: 2.25em; }
+    .gameBody { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+    .choices { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
+    .choices button { height: clamp(88px, 16dvh, 128px); font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const roundsPerGame = 10;
+const flashDurationMs = 400;
+const storedNameKey = "brollVsSnapsName";
+const appElement = document.getElementById("app");
+const ownerLabels = { bryan: "Bryan", saanvi: "Saanvi" };
+
+let photoLibrary = [];
+
+function createElement(tagName, text, className) {
+  const element = document.createElement(tagName);
+  if (text !== undefined) element.textContent = text;
+  if (className) element.className = className;
+  return element;
+}
+
+function createButton(text, onClick, className) {
+  const button = createElement("button", text, className);
+  button.type = "button";
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function showView(viewName, ...elements) {
+  appElement.className = viewName;
+  appElement.replaceChildren(...elements);
+  window.scrollTo(0, 0);
+}
+
+function readStoredName() {
+  return (localStorage.getItem(storedNameKey) || "").trim();
+}
+
+function normalizeName(name) {
+  return name.trim().slice(0, 24).trim();
+}
+
+function shuffle(items) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
+
+function pickRounds() {
+  const pools = {
+    bryan: shuffle(photoLibrary.filter((photo) => photo.owner === "bryan")),
+    saanvi: shuffle(photoLibrary.filter((photo) => photo.owner === "saanvi"))
+  };
+  const rounds = [];
+  while (rounds.length < roundsPerGame) {
+    const wantedOwner = Math.random() < 0.5 ? "bryan" : "saanvi";
+    const otherOwner = wantedOwner === "bryan" ? "saanvi" : "bryan";
+    const pool = pools[wantedOwner].length > 0 ? pools[wantedOwner] : pools[otherOwner];
+    rounds.push(pool.pop());
+  }
+  return rounds;
+}
+
+function preloadPhoto(photo) {
+  if (photo) new Image().src = "photos/" + photo.file;
+}
+
+async function loadPhotoLibrary() {
+  try {
+    const response = await fetch("photos.json");
+    photoLibrary = await response.json();
+  } catch {
+    photoLibrary = [];
+  }
+}
+
+async function fetchLeaderboardRows() {
+  try {
+    const response = await fetch("/api/leaderboard");
+    return response.ok ? await response.json() : [];
+  } catch {
+    return [];
+  }
+}
+
+async function postResult(name, correct) {
+  try {
+    const response = await fetch("/api/leaderboard", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, correct, total: roundsPerGame })
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+function buildTitle() {
+  const title = createElement("h1", undefined, "title");
+  title.append(createElement("span", "Bryan B-roll"), createElement("span", "vs", "versus"), createElement("span", "Saanvi Snaps"));
+  return title;
+}
+
+function buildLeaderboardTable(rows, playerName) {
+  const table = createElement("table");
+  const headerRow = createElement("tr");
+  ["#", "Name", "Accuracy", "Games"].forEach((label) => headerRow.append(createElement("th", label)));
+  table.append(headerRow);
+  rows.forEach((row) => {
+    const tableRow = createElement("tr", undefined, row.name.toLowerCase() === playerName.toLowerCase() ? "mine" : "");
+    [row.rank, row.name, row.accuracy + "%", row.games].forEach((value) => {
+      tableRow.append(createElement("td", String(value)));
+    });
+    table.append(tableRow);
+  });
+  return table;
+}
+
+async function showHome(knownRows) {
+  const playerName = readStoredName();
+  const playButton = createButton("Play", startPlay, "primary");
+  playButton.disabled = photoLibrary.length < roundsPerGame;
+  const actions = createElement("div", undefined, "homeActions");
+  actions.append(playButton);
+  if (playerName) actions.append(createButton("Playing as " + playerName + ". Change", () => askName(() => showHome()), "linkButton"));
+  const intro = createElement("div", undefined, "homeIntro");
+  intro.append(buildTitle(), actions);
+  const board = createElement("div", undefined, "board");
+  const layout = createElement("div", undefined, "homeLayout");
+  layout.append(intro, board);
+  showView("home", layout);
+  const rows = knownRows || (await fetchLeaderboardRows());
+  board.append(rows.length > 0 ? buildLeaderboardTable(rows, playerName) : createElement("p", "No scores yet", "emptyBoard"));
+}
+
+function askName(onDone) {
+  const input = createElement("input");
+  input.maxLength = 24;
+  input.value = readStoredName();
+  input.autocomplete = "off";
+  input.setAttribute("aria-label", "Your name");
+  const submit = () => {
+    const name = normalizeName(input.value);
+    if (!name) return;
+    localStorage.setItem(storedNameKey, name);
+    onDone();
+  };
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") submit();
+  });
+  const layout = createElement("div", undefined, "centerLayout");
+  layout.append(createElement("h1", "What's your name?"), input, createButton("Continue", submit, "primary"));
+  showView("name", layout);
+  input.focus();
+}
+
+function startPlay() {
+  if (readStoredName()) startGame();
+  else askName(startGame);
+}
+
+function startGame() {
+  playRound(pickRounds(), 0, 0);
+}
+
+function buildProgress(roundIndex) {
+  const progress = createElement("div", undefined, "progress");
+  for (let index = 0; index < roundsPerGame; index++) {
+    progress.append(createElement("i", undefined, index <= roundIndex ? "done" : ""));
+  }
+  return progress;
+}
+
+function playRound(rounds, roundIndex, correctCount) {
+  const photo = rounds[roundIndex];
+  preloadPhoto(rounds[roundIndex + 1]);
+  const image = createElement("img");
+  image.src = "photos/" + photo.file;
+  image.alt = "";
+  const frame = createElement("div", undefined, "photoFrame");
+  frame.append(image);
+  const choices = createElement("div", undefined, "choices");
+  let isLocked = false;
+  Object.keys(ownerLabels).forEach((owner) => {
+    const button = createButton(ownerLabels[owner], () => {
+      if (isLocked) return;
+      isLocked = true;
+      const isCorrect = owner === photo.owner;
+      button.classList.add(isCorrect ? "right" : "wrong");
+      setTimeout(() => advance(rounds, roundIndex, correctCount + (isCorrect ? 1 : 0)), flashDurationMs);
+    });
+    choices.append(button);
+  });
+  const header = createElement("div", undefined, "gameHeader");
+  header.append(buildProgress(roundIndex), createElement("div", roundIndex + 1 + " / " + roundsPerGame, "counter"));
+  const body = createElement("div", undefined, "gameBody");
+  body.append(frame, choices);
+  const layout = createElement("div", undefined, "gameLayout");
+  layout.append(header, body);
+  showView("game", layout);
+}
+
+function advance(rounds, roundIndex, correctCount) {
+  if (roundIndex + 1 < roundsPerGame) playRound(rounds, roundIndex + 1, correctCount);
+  else finishGame(correctCount);
+}
+
+function finishGame(correctCount) {
+  const resultPromise = postResult(readStoredName(), correctCount);
+  const percent = Math.round((correctCount / roundsPerGame) * 100);
+  const homeButton = createButton("Leaderboard", async () => {
+    homeButton.disabled = true;
+    showHome(await resultPromise);
+  }, "primary");
+  const layout = createElement("div", undefined, "centerLayout");
+  layout.append(
+    createElement("p", correctCount + " / " + roundsPerGame, "score"),
+    createElement("p", percent + "% correct", "percent"),
+    homeButton
+  );
+  showView("score", layout);
+}
+
+loadPhotoLibrary().then(() => showHome());
+</script>
+</body>
+</html>

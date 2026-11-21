@@ -1,0 +1,7 @@
+{
+  "name": "broll-vs-snaps",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}
